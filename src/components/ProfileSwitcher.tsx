@@ -1,7 +1,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Plus } from "lucide-react";
+import { Plus, Edit } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -18,10 +18,10 @@ interface ProfileSwitcherProps {
 
 const ProfileSwitcher = ({ selectedProfile, onProfileSelect, onClose }: ProfileSwitcherProps) => {
   const profiles: Profile[] = [
-    { id: '1', name: 'Alex', avatar: '👨‍💻', color: 'from-purple-500 to-blue-500' },
-    { id: '2', name: 'Sarah', avatar: '👩‍🎓', color: 'from-pink-500 to-red-500' },
-    { id: '3', name: 'Mike', avatar: '👨‍🔬', color: 'from-green-500 to-teal-500' },
-    { id: '4', name: 'Emma', avatar: '👩‍💼', color: 'from-yellow-500 to-orange-500' },
+    { id: '1', name: 'Alex', avatar: '👨‍💻', color: 'from-red-600 to-red-800' },
+    { id: '2', name: 'Sarah', avatar: '👩‍🎓', color: 'from-blue-600 to-blue-800' },
+    { id: '3', name: 'Mike', avatar: '👨‍🔬', color: 'from-green-600 to-green-800' },
+    { id: '4', name: 'Emma', avatar: '👩‍💼', color: 'from-purple-600 to-purple-800' },
   ];
 
   const handleProfileSelect = (profileName: string) => {
@@ -30,47 +30,50 @@ const ProfileSwitcher = ({ selectedProfile, onProfileSelect, onClose }: ProfileS
   };
 
   return (
-    <div className="max-w-6xl mx-auto text-center">
-      <h2 className="text-4xl font-bold text-white mb-4">Who's reading?</h2>
-      <p className="text-slate-400 mb-12">Select your profile to continue</p>
+    <div className="max-w-4xl mx-auto text-center px-4">
+      <h1 className="text-4xl md:text-6xl font-light text-white mb-8">Who's reading?</h1>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-4xl mx-auto">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 max-w-3xl mx-auto mb-12">
         {profiles.map((profile) => (
-          <Card
+          <div
             key={profile.id}
-            className={`bg-slate-800/50 border-slate-700 hover:bg-slate-700/50 transition-all duration-300 hover:scale-105 cursor-pointer group ${
-              selectedProfile === profile.name ? 'ring-2 ring-purple-400' : ''
-            }`}
+            className="cursor-pointer group transition-all duration-300 hover:scale-105"
             onClick={() => handleProfileSelect(profile.name)}
           >
-            <CardContent className="p-6 text-center">
-              <div className={`w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br ${profile.color} flex items-center justify-center text-3xl shadow-lg`}>
+            <div className="relative">
+              <div className={`w-24 h-24 md:w-32 md:h-32 mx-auto mb-4 rounded-lg bg-gradient-to-br ${profile.color} flex items-center justify-center text-4xl md:text-5xl transition-all duration-300 group-hover:ring-4 group-hover:ring-white`}>
                 {profile.avatar}
               </div>
-              <h3 className="text-white font-medium group-hover:text-purple-300 transition-colors">
-                {profile.name}
-              </h3>
-            </CardContent>
-          </Card>
+              
+              {/* Netflix-style edit icon on hover */}
+              <div className="absolute top-0 right-0 w-6 h-6 bg-black rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <Edit className="w-3 h-3 text-white" />
+              </div>
+            </div>
+            
+            <h3 className="text-white text-lg md:text-xl font-light group-hover:text-gray-300 transition-colors">
+              {profile.name}
+            </h3>
+          </div>
         ))}
         
-        {/* Add Profile Card */}
-        <Card className="bg-slate-800/30 border-slate-600 border-dashed hover:bg-slate-700/30 transition-all duration-300 cursor-pointer">
-          <CardContent className="p-6 text-center h-full flex flex-col items-center justify-center">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-slate-700 flex items-center justify-center">
-              <Plus className="w-8 h-8 text-slate-400" />
-            </div>
-            <h3 className="text-slate-400 font-medium">Add Profile</h3>
-          </CardContent>
-        </Card>
+        {/* Add Profile */}
+        <div className="cursor-pointer group transition-all duration-300 hover:scale-105">
+          <div className="w-24 h-24 md:w-32 md:h-32 mx-auto mb-4 rounded-lg bg-transparent border-2 border-gray-600 flex items-center justify-center transition-all duration-300 group-hover:border-white">
+            <Plus className="w-8 h-8 md:w-12 md:h-12 text-gray-600 group-hover:text-white transition-colors" />
+          </div>
+          <h3 className="text-gray-400 text-lg md:text-xl font-light group-hover:text-white transition-colors">
+            Add Profile
+          </h3>
+        </div>
       </div>
       
       <Button
         onClick={onClose}
         variant="outline"
-        className="mt-12 border-slate-600 text-slate-400 hover:bg-slate-700/50"
+        className="border-gray-600 text-gray-400 hover:bg-transparent hover:border-white hover:text-white bg-transparent text-lg px-8 py-3"
       >
-        Continue as Guest
+        MANAGE PROFILES
       </Button>
     </div>
   );
