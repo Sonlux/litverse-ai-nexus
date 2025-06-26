@@ -1,21 +1,59 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Search, Bell, User, ChevronDown } from "lucide-react";
 import HeroSection from "@/components/HeroSection";
 import LibraryCarousel from "@/components/LibraryCarousel";
 import ChatInterface from "@/components/ChatInterface";
 import ProfileSwitcher from "@/components/ProfileSwitcher";
+import AuthForm from "@/components/AuthForm";
+import LibraryManager from "@/components/LibraryManager";
+import LibraryView from "@/components/LibraryView";
+import { useAuth } from "@/hooks/useAuth";
+import { Card, CardContent } from "@/components/ui/card";
+
+interface Library {
+  id: string;
+  name: string;
+  description: string | null;
+  tags: string[] | null;
+}
 
 const Index = () => {
+  const { user, loading, signOut } = useAuth();
   const [currentView, setCurrentView] = useState<'home' | 'libraries' | 'chat' | 'profiles'>('home');
   const [selectedProfile, setSelectedProfile] = useState<string>('Alex');
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [selectedLibrary, setSelectedLibrary] = useState<Library | null>(null);
 
   const handleViewChange = (view: 'home' | 'libraries' | 'chat' | 'profiles') => {
     setCurrentView(view);
+    setSelectedLibrary(null);
   };
+
+  const handleLibrarySelect = (library: Library) => {
+    setSelectedLibrary(library);
+  };
+
+  const handleLibraryBack = () => {
+    setSelectedLibrary(null);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setShowProfileDropdown(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthForm />;
+  }
 
   const mockLibraries = [
     {
@@ -113,7 +151,10 @@ const Index = () => {
                     Manage Profiles
                   </button>
                   <div className="border-t border-gray-700 my-2"></div>
-                  <button className="w-full text-left px-4 py-2 hover:bg-gray-800 transition-colors">
+                  <button 
+                    onClick={handleSignOut}
+                    className="w-full text-left px-4 py-2 hover:bg-gray-800 transition-colors"
+                  >
                     Sign out of BookBot
                   </button>
                 </div>
@@ -152,10 +193,15 @@ const Index = () => {
           </div>
         )}
 
-        {currentView === 'libraries' && (
+        {currentView === 'libraries' && !selectedLibrary && (
           <div className="pt-20 px-4 md:px-16 pb-20">
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-8">All Libraries</h1>
-            <LibraryCarousel libraries={mockLibraries} showAll />
+            <LibraryManager onLibrarySelect={handleLibrarySelect} />
+          </div>
+        )}
+
+        {currentView === 'libraries' && selectedLibrary && (
+          <div className="pt-20 px-4 md:px-16 pb-20">
+            <LibraryView library={selectedLibrary} onBack={handleLibraryBack} />
           </div>
         )}
 
