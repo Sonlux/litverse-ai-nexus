@@ -7,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
 dist
 dist-ssr
@@ -22,3 +23,37 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.cursor/
+
+# Python specific
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+env/
+ENV/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# User uploaded content
+backend/data/uploads/*
+!backend/data/uploads/.gitkeep
+backend/data/vectorstore/*
+!backend/data/vectorstore/.gitkeep
+
+# Supabase
+.supabase/

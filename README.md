@@ -1,73 +1,126 @@
-# Welcome to your Lovable project
+# BookBot - RAG-Based PDF QA System
 
-## Project info
+BookBot is a full-stack AI web application that allows users to upload PDF books, organize them into libraries, and ask questions based on their content using Retrieval-Augmented Generation (RAG).
 
-**URL**: https://lovable.dev/projects/8d6b0de3-ee88-4f18-b9bb-5880da051264
+## Features
 
-## How can I edit this code?
+- Upload and manage PDFs under multiple libraries
+- Parse and embed PDF content for semantic search and RAG
+- Chat interface to ask context-aware questions using LLMs
+- Maintain and resume chat history per user and per library
+- Modern, responsive, and user-friendly UI
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+### Frontend
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/8d6b0de3-ee88-4f18-b9bb-5880da051264) and start prompting.
+- React with Vite
+- TailwindCSS for styling
+- React Query for data fetching
+- Supabase for authentication and storage
 
-Changes made via Lovable will be committed automatically to this repo.
+### Backend
 
-**Use your preferred IDE**
+- FastAPI for the API
+- LangChain for RAG pipeline
+- ChromaDB for vector storage
+- SentenceTransformers for embeddings
+- Nemotron 3.3 70B for LLM
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
 
-Follow these steps:
+- Node.js (v18+)
+- Python (v3.9+)
+- Supabase account
+- LLM API access (Nemotron 3.3 70B)
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Backend Setup
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1. Navigate to the backend directory:
 
-# Step 3: Install the necessary dependencies.
-npm i
+   ```
+   cd backend
+   ```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+2. Create a virtual environment:
 
-**Edit a file directly in GitHub**
+   ```
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+3. Install dependencies:
 
-**Use GitHub Codespaces**
+   ```
+   pip install -r requirements.txt
+   ```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+4. Create a `.env` file in the backend directory with the following variables:
 
-## What technologies are used for this project?
+   ```
+   NEMOTRON_API_KEY=your_api_key
+   NEMOTRON_API_URL=https://integrate.api.nvidia.com/v1
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_KEY=your_supabase_anon_key
+   SUPABASE_SERVICE_KEY=your_supabase_service_key
+   ```
 
-This project is built with:
+5. Initialize the database:
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+   ```
+   python init_db.py
+   ```
 
-## How can I deploy this project?
+6. Run the FastAPI server:
+   ```
+   python run.py
+   ```
 
-Simply open [Lovable](https://lovable.dev/projects/8d6b0de3-ee88-4f18-b9bb-5880da051264) and click on Share -> Publish.
+The API will be available at http://localhost:8000/api.
 
-## Can I connect a custom domain to my Lovable project?
+### Frontend Setup
 
-Yes, you can!
+1. From the project root directory:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+   ```
+   npm install
+   ```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+2. Start the development server:
+   ```
+   npm run dev
+   ```
+
+The frontend will be available at http://localhost:8080.
+
+## API Routes
+
+### Libraries
+
+- GET `/api/libraries` - Get all libraries
+- POST `/api/libraries` - Create a new library
+- PUT `/api/libraries/{id}` - Update a library
+- DELETE `/api/libraries/{id}` - Delete a library
+
+### Documents
+
+- GET `/api/documents/{library_id}` - Get documents in a library
+- POST `/api/upload/{library_id}` - Upload a PDF document
+- POST `/api/upload-web/{library_id}` - Upload a web page
+- DELETE `/api/documents/{document_id}` - Delete a document
+
+### Chat
+
+- POST `/api/conversations/{library_id}` - Create a new conversation
+- GET `/api/conversations/{library_id}` - Get all conversations in a library
+- GET `/api/conversation/{conversation_id}/messages` - Get messages in a conversation
+- POST `/api/chat/{conversation_id}` - Send a message to a conversation
+- POST `/api/chat/{conversation_id}/stream` - Stream a message to a conversation
+- POST `/api/chat` - Simplified chat endpoint
+- DELETE `/api/conversations/{conversation_id}` - Delete a conversation
+
+## License
+
+MIT

@@ -1,0 +1,73 @@
+# BookBot: A RAG-Based PDF Question Answering System
+
+## Introduction
+
+BookBot is a Retrieval-Augmented Generation (RAG) system designed to provide accurate answers to questions based on PDF documents. The system combines the power of large language models with a retrieval mechanism that fetches relevant context from the user's documents.
+
+## How RAG Works
+
+Retrieval-Augmented Generation (RAG) is a hybrid approach that combines retrieval-based and generation-based methods for question answering. Here's how it works:
+
+1. **Document Processing**: PDF documents are processed, parsed into text, and divided into smaller chunks.
+
+2. **Embedding Generation**: Each text chunk is converted into a vector embedding using a model like Sentence Transformers.
+
+3. **Vector Storage**: These embeddings are stored in a vector database (e.g., ChromaDB) for efficient similarity search.
+
+4. **Query Processing**: When a user asks a question, the question is also converted into an embedding.
+
+5. **Retrieval**: The system finds chunks that are semantically similar to the question by comparing embeddings.
+
+6. **Context Assembly**: The most relevant chunks are assembled into a context document.
+
+7. **Answer Generation**: The context and question are sent to a large language model (e.g., Nemotron 3.3 70B), which generates an answer based on the provided context.
+
+## Advantages of RAG
+
+RAG systems offer several advantages over traditional question-answering approaches:
+
+- **Accuracy**: By providing relevant context, RAG systems can generate more accurate answers.
+- **Verifiability**: Answers can be traced back to their source documents.
+- **Reduced Hallucination**: The model is constrained by the provided context, reducing the likelihood of generating incorrect information.
+- **Up-to-date Information**: The system can answer questions based on the latest documents without requiring model retraining.
+
+## BookBot Architecture
+
+BookBot consists of the following components:
+
+### Backend (FastAPI)
+
+- **PDF Processor**: Extracts text from PDFs using PyMuPDF.
+- **Embedding Manager**: Generates embeddings using Sentence Transformers.
+- **Vector Store**: Stores and retrieves embeddings using ChromaDB.
+- **RAG System**: Coordinates retrieval and generation using the Nemotron 3.3 70B model.
+- **API Endpoints**: Handles document uploads, library management, and question answering.
+
+### Frontend (Streamlit)
+
+- **Library Management**: Interface for creating and managing document libraries.
+- **Document Upload**: Drag-and-drop interface for uploading PDFs.
+- **Chat Interface**: Conversational interface for asking questions about documents.
+- **Source Display**: Shows the sources used to generate each answer.
+
+## Use Cases
+
+BookBot can be used in various scenarios:
+
+1. **Research**: Quickly find information across multiple research papers.
+2. **Education**: Answer questions from textbooks and course materials.
+3. **Legal**: Extract information from contracts and legal documents.
+4. **Technical Documentation**: Navigate complex technical manuals and documentation.
+
+## Future Enhancements
+
+Potential enhancements for BookBot include:
+
+- **Multi-modal Support**: Process images and diagrams within PDFs.
+- **Document Summarization**: Generate summaries of uploaded documents.
+- **Cross-document Analysis**: Answer questions that require information from multiple documents.
+- **User Authentication**: Secure access to documents and conversations.
+
+## Conclusion
+
+BookBot demonstrates the power of combining retrieval mechanisms with large language models to create a system that can answer questions based on specific documents. This approach enhances the accuracy and reliability of AI-generated responses while providing transparency through source citations. 

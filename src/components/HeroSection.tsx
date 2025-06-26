@@ -1,16 +1,19 @@
-
 import { Button } from "@/components/ui/button";
 import { Play, Info, Plus } from "lucide-react";
 
-const HeroSection = () => {
+interface HeroSectionProps {
+  onStartChat: () => void;
+}
+
+const HeroSection = ({ onStartChat }: HeroSectionProps) => {
   return (
     <div className="relative h-screen flex items-center">
       {/* Background Image with Netflix-style gradient */}
       <div className="absolute inset-0">
-        <div 
+        <div
           className="w-full h-full bg-cover bg-center bg-no-repeat"
           style={{
-            backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0.1) 100%), linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 60%), url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3')`
+            backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.8) 30%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0.1) 100%), linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 60%), url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3')`,
           }}
         ></div>
       </div>
@@ -19,8 +22,12 @@ const HeroSection = () => {
       <div className="relative z-10 px-4 md:px-16 max-w-2xl">
         {/* Netflix-style badge */}
         <div className="flex items-center mb-4">
-          <span className="bg-red-600 text-white px-2 py-1 text-sm font-bold mr-3">B</span>
-          <span className="text-white text-sm font-semibold tracking-wider">SERIES</span>
+          <span className="bg-red-600 text-white px-2 py-1 text-sm font-bold mr-3">
+            B
+          </span>
+          <span className="text-white text-sm font-semibold tracking-wider">
+            SERIES
+          </span>
         </div>
 
         {/* Title */}
@@ -32,22 +39,24 @@ const HeroSection = () => {
 
         {/* Description */}
         <p className="text-lg md:text-xl text-white mb-8 max-w-lg leading-relaxed">
-          Upload, organize, and chat with your documents using advanced AI. 
-          Get instant answers from your personal knowledge base with intelligent document analysis.
+          Upload, organize, and chat with your documents using advanced AI. Get
+          instant answers from your personal knowledge base with intelligent
+          document analysis.
         </p>
 
         {/* Action Buttons */}
         <div className="flex items-center space-x-4">
-          <Button 
-            size="lg" 
+          <Button
+            size="lg"
+            onClick={onStartChat}
             className="bg-white hover:bg-gray-200 text-black font-semibold px-8 py-3 rounded-md flex items-center space-x-2 transition-all duration-200"
           >
             <Play className="w-5 h-5 fill-current" />
-            <span>Start Reading</span>
+            <span>Start Chatting</span>
           </Button>
-          <Button 
-            size="lg" 
-            variant="outline" 
+          <Button
+            size="lg"
+            variant="outline"
             className="border-2 border-gray-400 bg-gray-600/70 hover:bg-gray-600 text-white font-semibold px-8 py-3 rounded-md flex items-center space-x-2 transition-all duration-200"
           >
             <Info className="w-5 h-5" />
