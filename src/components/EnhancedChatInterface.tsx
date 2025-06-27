@@ -70,7 +70,14 @@ const EnhancedChatInterface = ({
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setMessages(data || []);
+      
+      // Type assertion to ensure proper typing
+      const typedMessages: Message[] = (data || []).map(msg => ({
+        ...msg,
+        role: msg.role as 'user' | 'assistant'
+      }));
+      
+      setMessages(typedMessages);
     } catch (error) {
       console.error('Error loading chat history:', error);
       toast.error('Failed to load chat history');
@@ -109,7 +116,7 @@ const EnhancedChatInterface = ({
     }
   };
 
-  const saveMessage = async (sessionId: string, role: 'user' | 'assistant', content: string, sourceRef?: string) => {
+  const saveMessage = async (sessionId: string, role: 'user' | 'assistant', content: string, sourceRef?: string): Promise<Message | null> => {
     try {
       const { data, error } = await supabase
         .from('chat_messages')
@@ -123,7 +130,12 @@ const EnhancedChatInterface = ({
         .single();
 
       if (error) throw error;
-      return data;
+      
+      // Type assertion to ensure proper typing
+      return {
+        ...data,
+        role: data.role as 'user' | 'assistant'
+      };
     } catch (error) {
       console.error('Error saving message:', error);
       return null;

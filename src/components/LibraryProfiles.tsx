@@ -3,13 +3,13 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2, BookOpen, FileText, Users } from "lucide-react";
-import { Library } from "@/services/api";
+import { Library as ApiLibrary } from "@/services/api";
 import { toast } from "sonner";
 import { LibraryAPI } from "@/services/api";
 
 interface LibraryProfilesProps {
-  libraries: Library[];
-  onLibrarySelect: (library: Library) => void;
+  libraries: ApiLibrary[];
+  onLibrarySelect: (library: ApiLibrary) => void;
   onCreateNew: () => void;
   onClose: () => void;
 }
