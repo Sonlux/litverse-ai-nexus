@@ -11,12 +11,34 @@ import LibraryManager from "@/components/LibraryManager";
 import LibraryView from "@/components/LibraryView";
 import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Library as ApiLibrary,
-  Document as ApiDocument,
-  LibraryAPI,
-  DocumentAPI,
-} from "@/services/api";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from 'sonner';
+
+// Use Supabase types directly
+interface Library {
+  id: string;
+  name: string;
+  description: string | null;
+  tags: string[] | null;
+  created_at: string;
+  updated_at: string;
+  user_id: string;
+  _count?: {
+    pdfs: number;
+  };
+}
+
+interface PDF {
+  id: string;
+  title: string;
+  file_name: string;
+  file_path: string;
+  file_size: number | null;
+  page_count: number | null;
+  library_id: string;
+  user_id: string;
+  upload_date: string;
+}
 
 const Index = () => {
   const { user, loading, signOut } = useAuth();
@@ -24,13 +46,11 @@ const Index = () => {
     "profiles" | "home" | "libraries" | "chat"
   >("profiles");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [selectedLibrary, setSelectedLibrary] = useState<ApiLibrary | null>(
+  const [selectedLibrary, setSelectedLibrary] = useState<Library | null>(
     null
   );
-  const [libraries, setLibraries] = useState<ApiLibrary[]>([]);
-  const [libraryDocs, setLibraryDocs] = useState<Record<string, ApiDocument[]>>(
-    {}
-  );
+  const [libraries, setLibraries] = useState<Library[]>([]);
+  const [libraryPdfs, setLibraryPdfs] = useState<Record<string, PDF[]>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
 
@@ -41,7 +61,7 @@ const Index = () => {
     setSelectedLibrary(null);
   };
 
-  const openLibrary = (library: ApiLibrary) => {
+  const openLibrary = (library: Library) => {
     setSelectedLibrary(library);
     setCurrentView("libraries");
   };
@@ -62,29 +82,61 @@ const Index = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    // Filter libraries based on search query
-    // This can be enhanced with more sophisticated search later
+  };
+
+  const fetchLibraries = async () => {
+    if (!user) return;
+
+    try {
+      const { data: librariesData, error } = await supabase
+        .from('libraries')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const librariesWithCount = await Promise.all(
+        (librariesData || []).map(async (lib) => {
+          const { count } = await supabase
+            .from('pdfs')
+            .select('*', { count: 'exact', head: true })
+            .eq('library_id', lib.id);
+
+          return {
+            ...lib,
+            _count: { pdfs: count || 0 }
+          };
+        })
+      );
+
+      setLibraries(librariesWithCount);
+
+      // Fetch PDFs for each library
+      const pdfsByLib: Record<string, PDF[]> = {};
+      await Promise.all(
+        librariesWithCount.map(async (lib) => {
+          const { data: pdfsData } = await supabase
+            .from('pdfs')
+            .select('*')
+            .eq('library_id', lib.id)
+            .order('upload_date', { ascending: false });
+
+          pdfsByLib[lib.id] = pdfsData || [];
+        })
+      );
+      setLibraryPdfs(pdfsByLib);
+    } catch (error) {
+      console.error("Error loading libraries:", error);
+      toast.error("Failed to load libraries");
+    }
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const libs = await LibraryAPI.getAll();
-        setLibraries(libs);
-        const docsByLib: Record<string, ApiDocument[]> = {};
-        await Promise.all(
-          libs.map(async (lib) => {
-            const docs = await DocumentAPI.getByLibrary(Number(lib.id));
-            docsByLib[lib.id] = docs;
-          })
-        );
-        setLibraryDocs(docsByLib);
-      } catch (error) {
-        console.error("Error loading libraries:", error);
-      }
-    };
-    fetchData();
-  }, []);
+    if (user) {
+      fetchLibraries();
+    }
+  }, [user]);
 
   if (loading) {
     return (
@@ -110,13 +162,13 @@ const Index = () => {
     id: lib.id,
     name: lib.name,
     description: lib.description || "",
-    pdfCount: libraryDocs[lib.id]?.length ?? 0,
+    pdfCount: libraryPdfs[lib.id]?.length ?? 0,
     image: "",
-    pdfs: (libraryDocs[lib.id] ?? []).slice(0, 3).map((doc) => ({
-      id: doc.id.toString(),
-      title: doc.title || doc.filename,
-      author: doc.author || "",
-      pages: doc.page_count || 0,
+    pdfs: (libraryPdfs[lib.id] ?? []).slice(0, 3).map((pdf) => ({
+      id: pdf.id,
+      title: pdf.title,
+      author: "",
+      pages: pdf.page_count || 0,
     })),
   }));
 
@@ -235,6 +287,7 @@ const Index = () => {
               }}
               onCreateNew={() => handleViewChange("libraries")}
               onClose={() => handleViewChange("home")}
+              onLibraryCreated={fetchLibraries}
             />
           </div>
         )}
@@ -286,7 +339,7 @@ const Index = () => {
 
         {currentView === "libraries" && !selectedLibrary && (
           <div className="animate-fade-in">
-            <LibraryManager onLibrarySelect={openLibrary} />
+            <LibraryManager onLibrarySelect={openLibrary} onLibraryCreated={fetchLibraries} />
           </div>
         )}
 

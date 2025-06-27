@@ -3,18 +3,29 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2, BookOpen, FileText, Users } from "lucide-react";
-import { Library as ApiLibrary } from "@/services/api";
 import { toast } from "sonner";
-import { LibraryAPI } from "@/services/api";
+import { supabase } from "@/integrations/supabase/client";
 
-interface LibraryProfilesProps {
-  libraries: ApiLibrary[];
-  onLibrarySelect: (library: ApiLibrary) => void;
-  onCreateNew: () => void;
-  onClose: () => void;
+interface Library {
+  id: string;
+  name: string;
+  description: string | null;
+  tags: string[] | null;
+  created_at: string;
+  _count?: {
+    pdfs: number;
+  };
 }
 
-const LibraryProfiles = ({ libraries, onLibrarySelect, onCreateNew, onClose }: LibraryProfilesProps) => {
+interface LibraryProfilesProps {
+  libraries: Library[];
+  onLibrarySelect: (library: Library) => void;
+  onCreateNew: () => void;
+  onClose: () => void;
+  onLibraryCreated: () => void;
+}
+
+const LibraryProfiles = ({ libraries, onLibrarySelect, onCreateNew, onClose, onLibraryCreated }: LibraryProfilesProps) => {
   const [hoveredLibrary, setHoveredLibrary] = useState<string | null>(null);
   const [deletingLibrary, setDeletingLibrary] = useState<string | null>(null);
 
@@ -35,10 +46,17 @@ const LibraryProfiles = ({ libraries, onLibrarySelect, onCreateNew, onClose }: L
 
     try {
       setDeletingLibrary(libraryId);
-      await LibraryAPI.delete(Number(libraryId));
+      
+      // Delete the library - this will cascade delete PDFs, chat sessions, and messages
+      const { error } = await supabase
+        .from('libraries')
+        .delete()
+        .eq('id', libraryId);
+
+      if (error) throw error;
+
       toast.success("Library deleted successfully");
-      // Refresh libraries - in a real app, you'd want to update the parent state
-      window.location.reload();
+      onLibraryCreated(); // Refresh the libraries list
     } catch (error) {
       console.error("Error deleting library:", error);
       toast.error("Failed to delete library");
