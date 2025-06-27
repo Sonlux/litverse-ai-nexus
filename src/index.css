@@ -96,7 +96,7 @@
   }
 }
 
-/* Custom Netflix-like animations */
+/* Enhanced Netflix-like animations */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -111,18 +111,18 @@
 @keyframes scale-in {
   from {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.8) translateY(20px);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1) translateY(0);
   }
 }
 
 @keyframes slide-up {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(40px);
   }
   to {
     opacity: 1;
@@ -139,21 +139,62 @@
   }
 }
 
+@keyframes netflix-hover {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.1) translateY(-5px);
+  }
+}
+
+@keyframes profile-hover {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  100% {
+    transform: scale(1.1) rotate(2deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
 /* Utility classes */
 .animate-fade-in {
   animation: fade-in 0.6s ease-out forwards;
 }
 
 .animate-scale-in {
-  animation: scale-in 0.4s ease-out forwards;
+  animation: scale-in 0.5s ease-out forwards;
 }
 
 .animate-slide-up {
-  animation: slide-up 0.5s ease-out forwards;
+  animation: slide-up 0.7s ease-out forwards;
 }
 
 .animate-glow-pulse {
   animation: glow-pulse 2s ease-in-out infinite;
+}
+
+.animate-netflix-hover {
+  animation: netflix-hover 0.3s ease-out forwards;
+}
+
+.animate-profile-hover {
+  animation: profile-hover 0.3s ease-out forwards;
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 200px 100%;
 }
 
 /* Scrollbar styling */
@@ -211,11 +252,16 @@ button, .card, .hover-effect {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Netflix-style hover effects */
+/* Enhanced Netflix-style hover effects */
 .netflix-hover:hover {
-  transform: scale(1.05);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
   z-index: 10;
+}
+
+.netflix-profile:hover {
+  transform: scale(1.1) rotate(2deg);
+  filter: brightness(1.1);
 }
 
 /* Loading skeleton animation */
@@ -257,4 +303,23 @@ button, .card, .hover-effect {
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+/* Netflix-style gradient text */
+.gradient-text {
+  background: linear-gradient(45deg, #ef4444, #f97316, #eab308);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced card hover effects */
+.card-hover:hover {
+  transform: scale(1.02) translateY(-4px);
+  box-shadow: 0 20px 40px rgba(239, 68, 68, 0.2);
+}
+
+/* Smooth color transitions */
+.color-transition {
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 }

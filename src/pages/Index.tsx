@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Search, Bell, User, ChevronDown } from "lucide-react";
+import { Search, User, ChevronDown } from "lucide-react";
 import HeroSection from "@/components/HeroSection";
 import LibraryCarousel from "@/components/LibraryCarousel";
 import ChatInterface from "@/components/ChatInterface";
@@ -14,7 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from 'sonner';
 
-// Use Supabase types directly
+// Consolidated Library interface
 interface Library {
   id: string;
   name: string;
@@ -46,13 +46,12 @@ const Index = () => {
     "profiles" | "home" | "libraries" | "chat"
   >("profiles");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [selectedLibrary, setSelectedLibrary] = useState<Library | null>(
-    null
-  );
+  const [selectedLibrary, setSelectedLibrary] = useState<Library | null>(null);
   const [libraries, setLibraries] = useState<Library[]>([]);
   const [libraryPdfs, setLibraryPdfs] = useState<Record<string, PDF[]>>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const handleViewChange = (
     view: "profiles" | "home" | "libraries" | "chat"
@@ -82,6 +81,12 @@ const Index = () => {
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery("");
+    setShowSearch(false);
+    setIsSearchFocused(false);
   };
 
   const fetchLibraries = async () => {
@@ -155,7 +160,8 @@ const Index = () => {
 
   const filteredLibraries = libraries.filter(lib =>
     lib.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    lib.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    lib.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    lib.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const carouselLibraries = filteredLibraries.map((lib) => ({
@@ -209,23 +215,37 @@ const Index = () => {
             )}
           </div>
 
-          {/* Right Side - Search, Notifications, Profile */}
+          {/* Right Side - Enhanced Search and Profile */}
           <div className="flex items-center space-x-4">
-            {/* Search */}
+            {/* Enhanced Search */}
             <div className="relative">
-              {showSearch ? (
-                <div className="flex items-center bg-black/50 border border-gray-600 rounded-md px-3 py-2 animate-fade-in">
+              {showSearch || isSearchFocused ? (
+                <div className="flex items-center bg-black/80 border border-gray-600 rounded-md px-4 py-2 animate-scale-in backdrop-blur-sm shadow-2xl">
                   <input
                     type="text"
-                    placeholder="Search libraries..."
+                    placeholder="Search libraries, tags, descriptions..."
                     value={searchQuery}
                     onChange={(e) => handleSearch(e.target.value)}
-                    className="bg-transparent text-white placeholder-gray-400 outline-none w-64"
-                    autoFocus
+                    onFocus={() => setIsSearchFocused(true)}
                     onBlur={() => {
-                      if (!searchQuery) setShowSearch(false);
+                      if (!searchQuery) {
+                        setTimeout(() => {
+                          setIsSearchFocused(false);
+                          setShowSearch(false);
+                        }, 200);
+                      }
                     }}
+                    className="bg-transparent text-white placeholder-gray-400 outline-none w-64 md:w-80"
+                    autoFocus
                   />
+                  {searchQuery && (
+                    <button
+                      onClick={clearSearch}
+                      className="ml-2 text-gray-400 hover:text-white transition-colors"
+                    >
+                      ×
+                    </button>
+                  )}
                   <Search className="w-4 h-4 text-gray-400 ml-2" />
                 </div>
               ) : (
@@ -234,9 +254,39 @@ const Index = () => {
                   onClick={() => setShowSearch(true)}
                 />
               )}
+              
+              {/* Search Results Dropdown */}
+              {searchQuery && (showSearch || isSearchFocused) && (
+                <div className="absolute top-12 right-0 w-80 bg-black/95 border border-gray-700 rounded-md py-2 z-50 backdrop-blur-sm animate-fade-in shadow-2xl">
+                  {filteredLibraries.length > 0 ? (
+                    filteredLibraries.slice(0, 5).map((lib) => (
+                      <button
+                        key={lib.id}
+                        onClick={() => {
+                          openLibrary(lib);
+                          clearSearch();
+                        }}
+                        className="w-full text-left px-4 py-3 hover:bg-red-600/20 transition-all duration-300 border-b border-gray-800 last:border-b-0"
+                      >
+                        <div className="font-medium text-white">{lib.name}</div>
+                        {lib.description && (
+                          <div className="text-sm text-gray-400 truncate mt-1">
+                            {lib.description}
+                          </div>
+                        )}
+                        <div className="text-xs text-gray-500 mt-1">
+                          {lib._count?.pdfs || 0} PDFs
+                        </div>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-4 py-3 text-gray-400">
+                      No libraries found
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-
-            <Bell className="w-5 h-5 text-white cursor-pointer hover:text-gray-300 transition-all duration-300 hover:scale-110" />
 
             {/* Profile Dropdown */}
             <div className="relative">
